@@ -9,14 +9,26 @@ app = typer.Typer(help="CLI tool to synchronize projects with their templates.")
 
 @app.command()
 def init(
-    url: str = typer.Argument(..., help="Template repository URL"),
+    url: str = typer.Argument(
+        ..., help="Template repository URL or shortcut (gh:, glab:)"
+    ),
     dest: Path | None = typer.Argument(
         None, help="Destination directory (defaults to repo name)"
     ),
 ):
     """Initialize a new project from a template."""
+    # Transform shortcuts
+    if url.startswith("gh:"):
+        repo_path = url.split("gh:")[1]
+        url = f"https://github.com/{repo_path}.git"
+    elif url.startswith("glab:"):
+        repo_path = url.split("glab:")[1]
+        url = f"https://gitlab.com/{repo_path}.git"
+
     if dest is None:
-        dest = Path(url.split("/")[-1].replace(".git", ""))
+        # Extract name from URL, handling potential .git suffix
+        repo_name = url.split("/")[-1].replace(".git", "")
+        dest = Path(repo_name)
 
     if dest.exists() and any(dest.iterdir()):
         typer.echo(f"Error: Directory {dest} already exists and is not empty.")

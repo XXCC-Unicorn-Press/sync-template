@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+import unittest.mock as mock
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ import typer
 from git import Repo
 
 from sync_template.git import GitManager
+from sync_template.main import init
 
 
 @pytest.fixture
@@ -15,6 +17,34 @@ def temp_dir():
     dir_path = tempfile.mkdtemp()
     yield Path(dir_path)
     shutil.rmtree(dir_path)
+
+
+def test_url_transformation():
+    """Verify that gh: and glab: shortcuts are transformed correctly."""
+    # We mock GitManager.clone to check the URL passed
+    with mock.patch("sync_template.git.GitManager.clone") as mock_clone:
+        # 1. gh: transformation
+        try:
+            init("gh:owner/repo", Path("dest"))
+        except (SystemExit, typer.Exit):
+            pass
+        mock_clone.assert_called_with("https://github.com/owner/repo.git", Path("dest"))
+
+        # 2. glab: transformation
+        try:
+            init("glab:owner/repo", Path("dest_glab"))
+        except (SystemExit, typer.Exit):
+            pass
+        mock_clone.assert_called_with(
+            "https://gitlab.com/owner/repo.git", Path("dest_glab")
+        )
+
+        # 3. Standard URL (no change)
+        try:
+            init("https://example.com/repo.git", Path("dest_std"))
+        except (SystemExit, typer.Exit):
+            pass
+        mock_clone.assert_called_with("https://example.com/repo.git", Path("dest_std"))
 
 
 def test_init_non_empty_dir_fails(temp_dir):
@@ -25,9 +55,6 @@ def test_init_non_empty_dir_fails(temp_dir):
 
     # We should see an Exit exception or it should return early
     with pytest.raises(typer.Exit) as excinfo:
-        # Use main.app.command... but it's easier to just mock the call
-        from sync_template.main import init
-
         init("http://fake-url.com", dest)
     assert excinfo.value.exit_code == 1
 
