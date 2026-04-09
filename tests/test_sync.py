@@ -41,6 +41,39 @@ def test_init_existing_repo(temp_dir):
     assert (project_path / "README.md").read_text() == "Local README"
 
 
+def test_merge_unrelated_histories(temp_dir):
+    """Verify that sync works when template and project have unrelated histories."""
+    # 1. Setup template repo
+    template_path = temp_dir / "template_unrelated"
+    template_path.mkdir()
+    template_repo = Repo.init(template_path)
+    (template_path / "template.txt").write_text("template")
+    template_repo.index.add(["template.txt"])
+    template_repo.index.commit("Initial template commit")
+    template_repo.git.branch("-M", "main")
+
+    # 2. Setup project repo independently
+    project_path = temp_dir / "project_unrelated"
+    project_path.mkdir()
+    project_repo = Repo.init(project_path)
+    (project_path / "project.txt").write_text("project")
+    project_repo.index.add(["project.txt"])
+    project_repo.index.commit("Initial project commit")
+    project_repo.git.branch("-M", "main")
+
+    # 3. Add template remote
+    project_repo.create_remote("template", str(template_path))
+
+    # 4. Sync
+    manager = GitManager(project_path)
+    manager.fetch_template()
+    manager.merge_with_ignore("main")
+
+    # 5. Verify both files exist
+    assert (project_path / "project.txt").exists()
+    assert (project_path / "template.txt").exists()
+
+
 def test_url_transformation():
     """Verify that gh: and glab: shortcuts are transformed correctly."""
     # We mock GitManager.clone to check the URL passed

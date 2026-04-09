@@ -57,7 +57,9 @@ class GitManager:
         # 2. Try to merge without committing
         typer.echo(f"Merging from {template_ref}...")
         try:
-            self.repo.git.merge(template_ref, "--no-commit", "--no-ff")
+            self.repo.git.merge(
+                template_ref, "--no-commit", "--no-ff", "--allow-unrelated-histories"
+            )
         except Exception as e:
             if "CONFLICT" not in str(e):
                 raise e
