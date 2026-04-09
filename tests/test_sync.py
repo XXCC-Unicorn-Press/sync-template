@@ -19,20 +19,42 @@ def temp_dir():
     shutil.rmtree(dir_path)
 
 
+def test_init_existing_repo(temp_dir):
+    """Verify that init --existing only adds the remote to an existing repo."""
+    project_path = temp_dir / "existing_repo"
+    project_path.mkdir()
+    repo = Repo.init(project_path)
+    (project_path / "README.md").write_text("Local README")
+    repo.index.add(["README.md"])
+    repo.index.commit("Initial commit")
+
+    # Call init with --existing
+    # We use mock.patch to avoid actual clone if it were called
+    with mock.patch("sync_template.git.GitManager.clone") as mock_clone:
+        init("https://github.com/owner/repo.git", project_path, existing=True)
+        assert mock_clone.call_count == 0
+
+    # Verify remote was added
+    repo = Repo(project_path)
+    remote = repo.remote("template")
+    assert remote.url == "https://github.com/owner/repo.git"
+    assert (project_path / "README.md").read_text() == "Local README"
+
+
 def test_url_transformation():
     """Verify that gh: and glab: shortcuts are transformed correctly."""
     # We mock GitManager.clone to check the URL passed
     with mock.patch("sync_template.git.GitManager.clone") as mock_clone:
         # 1. gh: transformation
         try:
-            init("gh:owner/repo", Path("dest"))
+            init("gh:owner/repo", Path("dest"), existing=False)
         except (SystemExit, typer.Exit):
             pass
         mock_clone.assert_called_with("https://github.com/owner/repo.git", Path("dest"))
 
         # 2. glab: transformation
         try:
-            init("glab:owner/repo", Path("dest_glab"))
+            init("glab:owner/repo", Path("dest_glab"), existing=False)
         except (SystemExit, typer.Exit):
             pass
         mock_clone.assert_called_with(
@@ -41,7 +63,7 @@ def test_url_transformation():
 
         # 3. Standard URL (no change)
         try:
-            init("https://example.com/repo.git", Path("dest_std"))
+            init("https://example.com/repo.git", Path("dest_std"), existing=False)
         except (SystemExit, typer.Exit):
             pass
         mock_clone.assert_called_with("https://example.com/repo.git", Path("dest_std"))
@@ -55,7 +77,7 @@ def test_init_non_empty_dir_fails(temp_dir):
 
     # We should see an Exit exception or it should return early
     with pytest.raises(typer.Exit) as excinfo:
-        init("http://fake-url.com", dest)
+        init("http://fake-url.com", dest, existing=False)
     assert excinfo.value.exit_code == 1
 
 

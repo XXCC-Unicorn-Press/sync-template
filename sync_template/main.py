@@ -15,6 +15,9 @@ def init(
     dest: Path | None = typer.Argument(
         None, help="Destination directory (defaults to repo name)"
     ),
+    existing: bool = typer.Option(
+        False, "--existing", help="Initialize on an existing repository (skip clone)"
+    ),
 ):
     """Initialize a new project from a template."""
     # Transform shortcuts
@@ -26,17 +29,25 @@ def init(
         url = f"https://gitlab.com/{repo_path}.git"
 
     if dest is None:
-        # Extract name from URL, handling potential .git suffix
-        repo_name = url.split("/")[-1].replace(".git", "")
-        dest = Path(repo_name)
+        if existing:
+            dest = Path.cwd()
+        else:
+            # Extract name from URL, handling potential .git suffix
+            repo_name = url.split("/")[-1].replace(".git", "")
+            dest = Path(repo_name)
 
-    if dest.exists() and any(dest.iterdir()):
-        typer.echo(f"Error: Directory {dest} already exists and is not empty.")
-        raise typer.Exit(code=1)
+    if existing:
+        typer.echo(f"Setting up template remote in existing repository at {dest}...")
+        GitManager.setup_remote(url, dest)
+        typer.echo("Project initialized successfully.")
+    else:
+        if dest.exists() and any(dest.iterdir()):
+            typer.echo(f"Error: Directory {dest} already exists and is not empty.")
+            raise typer.Exit(code=1)
 
-    typer.echo(f"Creating project from {url} in {dest}...")
-    GitManager.clone(url, dest)
-    typer.echo("Project initialized successfully.")
+        typer.echo(f"Creating project from {url} in {dest}...")
+        GitManager.clone(url, dest)
+        typer.echo("Project initialized successfully.")
 
 
 @app.command()

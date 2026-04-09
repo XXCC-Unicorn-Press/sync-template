@@ -21,6 +21,24 @@ class GitManager:
         repo.create_remote("template", url)
         return cls(dest)
 
+    @classmethod
+    def setup_remote(cls, url: str, path: Path) -> "GitManager":
+        """Set up template remote for an existing git repository."""
+        if not (path / ".git").exists():
+            raise typer.BadParameter(f"Directory {path} is not a git repository.")
+
+        repo = Repo(path)
+        # Check if template remote already exists
+        try:
+            repo.remote("template")
+            typer.echo("Remote 'template' already exists. Updating its URL.")
+            repo.delete_remote("template")
+        except ValueError:
+            pass
+
+        repo.create_remote("template", url)
+        return cls(path)
+
     def fetch_template(self):
         """Fetch updates from the template remote."""
         template_remote = self.repo.remote("template")
