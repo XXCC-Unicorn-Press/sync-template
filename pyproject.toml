@@ -1,6 +1,6 @@
 [project]
 name = "sync-template"
-version = "0.1.0"
+version = "0.1.1"
 description = "A CLI tool to synchronize projects with their templates."
 authors = [
     {name = "Quaerent", email = "topfyf@qq.com"}
