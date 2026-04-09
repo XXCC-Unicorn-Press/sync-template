@@ -6,6 +6,7 @@
 
 - **Rapid Initialization**: Quickly create new projects from a template repository using `git clone --depth 1`.
 - **Auto-configuration**: Automatically sets the template repository as a remote named `template`.
+- **Shortcut Support**: Use `gh:<owner>/<repo>` for GitHub or `glab:<owner>/<repo>` for GitLab shortcuts.
 - **Smart Synchronization**: Fetches and merges updates from the template repository via `git fetch` and `git merge`.
 - **.syncignore Protection**: Automatically applies ignore rules after merging to ensure specific files or directories remain in their local state (supports recursive directories).
 - **Safety Checks**: Automatically verifies the working tree for uncommitted or untracked files before syncing to prevent accidental data loss.
@@ -33,12 +34,21 @@ poetry install
 Create a new project from a Git template repository:
 
 ```bash
-sync-template init https://github.com/user/my-python-template.git my-new-project
+sync-template init gh:user/my-python-template my-new-project
 ```
 
-This will:
-- Clone the template into `my-new-project`.
-- Rename/set the remote `origin` to `template`.
+Or initialize within an **existing repository** by adding only the `template` remote:
+
+```bash
+cd my-existing-repo
+sync-template init gh:user/my-python-template --existing
+```
+
+The `init` command supports:
+- Full HTTPS URLs: `https://github.com/user/repo.git`
+- SSH URLs: `git@github.com:user/repo.git`
+- GitHub shortcuts: `gh:user/repo`
+- GitLab shortcuts: `glab:user/repo`
 
 ### 2. Configure Ignore Rules
 
