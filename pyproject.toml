@@ -7,7 +7,21 @@ authors = [
 ]
 readme = "README.md"
 license = {text = "MIT"}
+keywords = ["git", "template", "sync", "cli", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Utilities",
+]
 requires-python = ">=3.13"
+
+[project.urls]
+Homepage = "https://github.com/XXCC-Unicorn-Press/sync-template"
+Repository = "https://github.com/XXCC-Unicorn-Press/sync-template"
+Issues = "https://github.com/XXCC-Unicorn-Press/sync-template/issues"
 dependencies = [
     "typer (>=0.24.1,<0.25.0)",
     "gitpython (>=3.1.46,<4.0.0)",
