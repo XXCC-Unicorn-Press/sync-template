@@ -1,93 +1,93 @@
 # sync-template
 
-`sync-template` 是一个用于管理和同步基于模板开发的项目的 CLI 工具。它可以帮助你在模板项目更新后，轻松地将更新合并到你的现有项目中，同时通过 `.syncignore` 保护你的本地修改。
+`sync-template` is a CLI tool designed for managing and synchronizing projects derived from template repositories. It helps you seamlessly merge updates from the template project into your existing project while protecting your local modifications using `.syncignore`.
 
-## 核心功能
+## Core Features
 
-- **快速初始化**: 使用 `git clone --depth 1` 从模板仓库快速创建新项目。
-- **自动配置**: 自动将模板仓库设置为名为 `template` 的远程仓库（remote）。
-- **智能同步**: 通过 `git fetch` 和 `git merge` 获取模板更新。
-- **.syncignore 保护**: 在合并后自动应用忽略规则，确保指定的文件或目录完全保持本地状态（支持递归目录）。
-- **安全检查**: 在同步前自动检查工作区是否有未提交或未追踪的文件，防止意外覆盖。
+- **Rapid Initialization**: Quickly create new projects from a template repository using `git clone --depth 1`.
+- **Auto-configuration**: Automatically sets the template repository as a remote named `template`.
+- **Smart Synchronization**: Fetches and merges updates from the template repository via `git fetch` and `git merge`.
+- **.syncignore Protection**: Automatically applies ignore rules after merging to ensure specific files or directories remain in their local state (supports recursive directories).
+- **Safety Checks**: Automatically verifies the working tree for uncommitted or untracked files before syncing to prevent accidental data loss.
 
-## 安装
+## Installation
 
-确保你的系统已安装 Python 3.13+ 和 Git。
+Ensure your system has Python 3.13+ and Git installed.
 
-使用 pip 安装（发布后）：
+To install via pip (after publishing):
 ```bash
 pip install sync-template
 ```
 
-或者通过源码安装（使用 Poetry）：
+To install from source (using Poetry):
 ```bash
 git clone https://github.com/your-username/sync-template.git
 cd sync-template
 poetry install
 ```
 
-## 使用方法
+## Usage
 
-### 1. 初始化新项目
+### 1. Initialize a New Project
 
-从一个 Git 模板仓库创建一个新项目：
+Create a new project from a Git template repository:
 
 ```bash
 sync-template init https://github.com/user/my-python-template.git my-new-project
 ```
 
-这会：
-- 将模板克隆到 `my-new-project`。
-- 将远程 `origin` 重命名/设置为 `template`。
+This will:
+- Clone the template into `my-new-project`.
+- Rename/set the remote `origin` to `template`.
 
-### 2. 配置忽略文件
+### 2. Configure Ignore Rules
 
-在项目根目录下创建 `.syncignore` 文件。其语法与 `.gitignore` 相同。
+Create a `.syncignore` file in the project root. The syntax is identical to `.gitignore`.
 
-例如：
+Example:
 ```text
-# 忽略配置文件
+# Ignore configuration files
 config.json
-# 忽略整个内容目录（包括新增、修改和删除）
+# Ignore the entire content directory (including additions, modifications, and deletions)
 content/
-# 忽略特定的本地脚本
+# Ignore specific local-only scripts
 scripts/local_only.sh
 ```
 
-### 3. 同步更新
+### 3. Sync Updates
 
-当模板仓库有更新时，在项目根目录运行：
+When the template repository has updates, run the following in your project root:
 
 ```bash
 sync-template sync
 ```
 
-默认同步 `main` 分支。如果需要同步其他分支，可以使用 `--branch` 参数：
+By default, it syncs the `main` branch. To sync a different branch, use the `--branch` parameter:
 
 ```bash
 sync-template sync --branch develop
 ```
 
-## 工作原理
+## How It Works
 
-1. **工作流检查**: 确保当前分支没有未提交的改动。
-2. **获取更新**: 执行 `git fetch template`。
-3. **合并尝试**: 执行 `git merge --no-commit template/<branch>`。
-4. **应用忽略**:
-   - 遍历 `.syncignore` 匹配的所有路径。
-   - 如果路径在同步前已存在，则使用 `git checkout HEAD` 恢复其内容，并自动解决冲突。
-   - 如果路径是模板新增的，则物理删除文件并从 Git 索引中移除。
-   - **自动清理**: 递归清理因删除操作产生的空文件夹。
-5. **完成**: 提示用户查看合并结果并提交。
+1. **Workflow Check**: Ensures there are no uncommitted or untracked changes in the current branch.
+2. **Fetch Updates**: Executes `git fetch template`.
+3. **Merge Attempt**: Executes `git merge --no-commit template/<branch>`.
+4. **Apply Ignore Logic**:
+   - Traverses all paths matched by `.syncignore`.
+   - If a path existed before the sync, it uses `git checkout HEAD` to restore its content and automatically resolve conflicts.
+   - If a path was added by the template, it physically removes the file and clears it from the Git index.
+   - **Automatic Cleanup**: Recursively cleans up empty directories left behind by the removal process.
+5. **Finalization**: Prompts the user to review the merge result and commit.
 
-## 开发与贡献
+## Development & Contribution
 
-该项目使用 [Poetry](https://python-poetry.org/) 进行包管理。
+This project uses [Poetry](https://python-poetry.org/) for dependency management.
 
-- **运行测试**: `poetry run pytest`
-- **代码规范检查**: `poetry run ruff check .`
-- **代码格式化**: `poetry run ruff format .`
+- **Run Tests**: `poetry run pytest`
+- **Linting Check**: `poetry run ruff check .`
+- **Format Code**: `poetry run ruff format .`
 
-## 开源协议
+## License
 
-本项目采用 [MIT License](LICENSE) 协议。
+This project is licensed under the [MIT License](LICENSE).
