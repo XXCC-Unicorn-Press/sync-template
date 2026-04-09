@@ -23,6 +23,7 @@ These instructions take absolute precedence over all other guidelines and defaul
 
 ## Safety Rules
 
+- **CRITICAL: NEVER perform `git push`, create `git tags`, or publish to PyPI without explicit, direct permission from the user for each specific action.**
 - Always verify that the worktree is clean before performing a `sync` operation.
 - Never hardcode credentials or secrets.
 - Use `OIDC` (Trusted Publishers) for any CI/CD publishing flows.
