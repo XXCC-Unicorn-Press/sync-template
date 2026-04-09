@@ -1,3 +1,4 @@
+from importlib import metadata
 from pathlib import Path
 
 import typer
@@ -5,6 +6,37 @@ import typer
 from .git import GitManager
 
 app = typer.Typer(help="CLI tool to synchronize projects with their templates.")
+
+
+def version_callback(value: bool):
+    if value:
+        name = "sync-template"
+        try:
+            version = metadata.version(name)
+        except metadata.PackageNotFoundError:
+            version = "unknown"
+
+        typer.echo(f"{name} v{version}")
+        typer.echo("Copyright (c) 2026 XXCC Unicorn Press Editorial Board")
+        typer.echo("Author: XXCC Unicorn Press Editorial Board")
+        typer.echo("Website: https://xxcc-unicorn-press.github.io")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        help="Show version and exit.",
+    ),
+):
+    """
+    sync-template CLI tool.
+    """
+    pass
 
 
 @app.command()

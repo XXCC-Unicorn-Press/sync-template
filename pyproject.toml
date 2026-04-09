@@ -1,9 +1,9 @@
 [project]
 name = "sync-template"
-version = "0.2.0"
+version = "0.2.1"
 description = "A CLI tool to synchronize projects with their templates."
 authors = [
-    {name = "Quaerent", email = "topfyf@qq.com"}
+    {name = "XXCC Unicorn Press Editorial Board", email = "topfyf@qq.com"}
 ]
 readme = "README.md"
 license = {text = "MIT"}
@@ -27,6 +27,7 @@ dependencies = [
 Homepage = "https://github.com/XXCC-Unicorn-Press/sync-template"
 Repository = "https://github.com/XXCC-Unicorn-Press/sync-template"
 Issues = "https://github.com/XXCC-Unicorn-Press/sync-template/issues"
+Documentation = "https://xxcc-unicorn-press.github.io"
 
 [dependency-groups]
 dev = [
